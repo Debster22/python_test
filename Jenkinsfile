@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds') 
+        // Задай свої креденшіали для Docker Hub у Jenkins (ID = dockerhub-creds)
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         DOCKER_IMAGE = "de6ster/python_test"
         DOCKER_TAG = "latest"
     }
@@ -18,6 +19,19 @@ pipeline {
             steps {
                 sh '''
                 python3 -m unittest tests.py
+                '''
+            }
+        }
+
+        stage('Check Docker Access') {
+            steps {
+                sh '''
+                echo "=== PATH ==="
+                echo $PATH
+                which docker || echo "docker not found"
+                docker --version || echo "docker command not working"
+                echo "=== Docker socket ==="
+                ls -l /var/run/docker.sock || echo "docker.sock not accessible"
                 '''
             }
         }
